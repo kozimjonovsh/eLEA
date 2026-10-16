@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title >eLEA KOREA Admin - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/elea.css}" href="../static/css/elea.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script th:src="@{/js/app.js}" src="../static/js/app.js" defer></script>
+</head>
+<body>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i data-lucide="package" class="sidebar-brand-icon-svg"></i></div>
+            <span class="sidebar-brand-text">eLEA KOREA</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/}" href="/" class="sidebar-nav-item" data-nav="/">
+                <i data-lucide="layout-dashboard" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/orders}" href="/orders" class="sidebar-nav-item" data-nav="/orders">
+                <i data-lucide="shopping-bag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Orders</span>
+            </a>
+            <a th:href="@{/customers}" href="/customers" class="sidebar-nav-item" data-nav="/customers">
+                <i data-lucide="users" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Customers</span>
+            </a>
+            <a th:href="@{/products}" href="/products" class="sidebar-nav-item" data-nav="/products">
+                <i data-lucide="package" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Products</span>
+            </a>
+            <a th:href="@{/categories}" href="/categories" class="sidebar-nav-item" data-nav="/categories">
+                <i data-lucide="tag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Categories</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title" th:text="${pageTitle} ?: 'Dashboard'">Dashboard</h1>
+                <p class="page-subtitle" th:text="${pageSubtitle} ?: 'Order Management System'">Order Management System</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button class="btn btn-ghost mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+                    <i data-lucide="menu" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                </button>
+            </div>
+        </header>
+
+        <section>
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="users" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" th:text="${totalCustomers != null ? totalCustomers : 0}">0</div>
+                        <div class="stat-label">Total Customers</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="package" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" th:text="${totalProducts != null ? totalProducts : 0}">0</div>
+                        <div class="stat-label">Total Products</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="shopping-bag" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" th:text="${totalOrders != null ? totalOrders : 0}">0</div>
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-trend positive"><i data-lucide="trending-up"></i> <span th:text="${(ordersThisMonth != null ? ordersThisMonth : 0) + ' this month'}">0 this month</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="dollar-sign" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" th:text="${totalMoneyGot != null ? #numbers.formatInteger(totalMoneyGot, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                        <div class="stat-label">Money Got (Revenue)</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="credit-card" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" th:text="${totalMoneySpent != null ? #numbers.formatInteger(totalMoneySpent, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                        <div class="stat-label">Money Spent (Cost)</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="trending-up" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" th:text="${totalProfit != null ? #numbers.formatInteger(totalProfit, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                        <div class="stat-label">Profit</div>
+                        <div class="stat-trend" th:classappend="${(totalProfit == null or totalProfit >= 0) ? 'positive' : 'negative'}">
+                            <i data-lucide="arrow-up-right"></i> <span th:text="${(totalProfit == null or totalProfit >= 0) ? 'Profitable' : 'Loss'}">Profitable</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Status Overview -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h3 class="card-title">Order Status Overview</h3>
+                </div>
+                <div class="card-body">
+                    <div class="stats-grid" style="margin-bottom: 0; gap: 0.75rem;">
+                        <div class="stat-card" style="padding: 1rem; flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Pending</div>
+                            <div class="stat-value" style="font-size: 1.5rem;" th:text="${pendingOrders != null ? pendingOrders : 0}">0</div>
+                            <div class="stat-label">Packing / Packing Completed</div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem; flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">In Transit</div>
+                            <div class="stat-value" style="font-size: 1.5rem;" th:text="${inTransitOrders != null ? inTransitOrders : 0}">0</div>
+                            <div class="stat-label">In Transit / In Local Warehouse</div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem; flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">In Delivery</div>
+                            <div class="stat-value" style="font-size: 1.5rem;" th:text="${inDeliveryOrders != null ? inDeliveryOrders : 0}">0</div>
+                            <div class="stat-label">Out for Delivery</div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem; flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Delivered</div>
+                            <div class="stat-value" style="font-size: 1.5rem;" th:text="${deliveredOrders != null ? deliveredOrders : 0}">0</div>
+                            <div class="stat-label">Completed Orders</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Recent Orders</h3>
+                    <a th:href="@{/orders}" href="/orders" class="btn btn-ghost btn-sm">View All</a>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div th:if="${recentOrders == null or recentOrders.isEmpty()}" class="empty-state" style="display: none;" th:style="'border-radius: 0; border: none; border-top: 1px solid var(--border-light);'">
+                        <i data-lucide="shopping-bag" class="empty-icon"></i>
+                        <h3 class="empty-title">No orders yet</h3>
+                        <p class="empty-text">Create your first order to get started</p>
+                        <a th:href="@{/orders/new}" href="/orders/new" class="btn btn-primary"><i data-lucide="plus"></i> Create Order</a>
+                    </div>
+                    <div th:unless="${recentOrders == null or recentOrders.isEmpty()}">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Qty</th>
+                                        <th>Revenue</th>
+                                        <th>Cost</th>
+                                        <th>Status</th>
+                                        <th>Payment</th>
+                                        <th>Date</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="order : ${recentOrders}">
+                                        <td><span class="mono" th:text="'#' + ${order.id}">#1</span></td>
+                                        <td>
+                                            <div style="font-weight: 500;" th:text="${order.customer?.name}">Customer</div>
+                                        </td>
+                                        <td>
+                                            <div style="font-weight: 500;" th:text="${order.product?.productName}">Product</div>
+                                        </td>
+                                        <td th:text="${order.quantity}">1</td>
+                                        <td><span class="mono" th:text="${order.overallPrice != null ? #numbers.formatInteger(order.overallPrice, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</span></td>
+                                        <td><span class="mono" th:text="${order.moneySpent != null ? #numbers.formatInteger(order.moneySpent, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</span></td>
+                                        <td>
+                                            <span class="badge status-packing" th:classappend="${order.status != null ? 'status-' + order.status.name().toLowerCase().replace('_', '-') : ''}" th:text="${order.status?.label}">Packing</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge status-pending" th:classappend="${order.paymentStatus != null ? 'status-' + order.paymentStatus.name().toLowerCase() : ''}" th:text="${order.paymentStatus?.label}">Pending</span>
+                                        </td>
+                                        <td th:text="${order.orderDate != null ? #temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm') : '—'}">2026-10-12 14:30</td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a th:href="@{/orders/{id}(id=${order.id})}" href="/orders" class="btn btn-ghost btn-sm" aria-label="View order">
+                                                    <i data-lucide="eye" style="width:16px;height:16px;"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

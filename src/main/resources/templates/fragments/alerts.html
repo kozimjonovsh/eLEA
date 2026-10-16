@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="alerts">
+    <div th:if="${success}" class="alert alert-success" role="alert">
+        <i data-lucide="check-circle" class="alert-icon"></i>
+        <div class="alert-content">
+            <span class="alert-message" th:text="${success}"></span>
+        </div>
+    </div>
+    <div th:if="${error}" class="alert alert-error" role="alert">
+        <i data-lucide="alert-circle" class="alert-icon"></i>
+        <div class="alert-content">
+            <span class="alert-message" th:text="${error}"></span>
+        </div>
+    </div>
+</th:block>
+</html>

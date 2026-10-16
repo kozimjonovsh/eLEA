@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.productName + ' - Product Details'}">Product Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/elea.css}" href="../../static/css/elea.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script th:src="@{/js/app.js}" src="../../static/js/app.js" defer></script>
+</head>
+<body>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i data-lucide="package" class="sidebar-brand-icon-svg"></i></div>
+            <span class="sidebar-brand-text">eLEA KOREA</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/}" href="/" class="sidebar-nav-item" data-nav="/">
+                <i data-lucide="layout-dashboard" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/orders}" href="/orders" class="sidebar-nav-item" data-nav="/orders">
+                <i data-lucide="shopping-bag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Orders</span>
+            </a>
+            <a th:href="@{/customers}" href="/customers" class="sidebar-nav-item" data-nav="/customers">
+                <i data-lucide="users" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Customers</span>
+            </a>
+            <a th:href="@{/products}" href="/products" class="sidebar-nav-item" data-nav="/products">
+                <i data-lucide="package" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Products</span>
+            </a>
+            <a th:href="@{/categories}" href="/categories" class="sidebar-nav-item" data-nav="/categories">
+                <i data-lucide="tag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Categories</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title" th:text="${pageTitle} ?: 'Product Details'">Product Details</h1>
+                <p class="page-subtitle" th:text="${pageSubtitle} ?: 'Order Management System'">Order Management System</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button class="btn btn-ghost mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+                    <i data-lucide="menu" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                </button>
+            </div>
+        </header>
+
+        <section>
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div>
+                    <h3 class="card-title" th:text="${product.productName}">Product Name</h3>
+                    <span class="badge badge-primary" th:text="${product.category?.name ?: 'Uncategorized'}">Category</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a th:href="@{/products/{id}/edit(id=${product.id})}" href="/products/new" class="btn btn-secondary"><i data-lucide="edit"></i> Edit</a>
+                    <a th:href="@{/products}" href="/products" class="btn btn-ghost"><i data-lucide="arrow-left"></i> Back</a>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="tag" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" th:text="${product.realPrice != null ? #numbers.formatInteger(product.realPrice, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                        <div class="stat-label">Real Price</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="calculator" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" th:text="${product.price != null ? #numbers.formatInteger(product.price, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                        <div class="stat-label">Price (×1.03×1.05)</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="dollar-sign" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" style="color: var(--success);" th:text="${product.soldPrice != null ? #numbers.formatInteger(product.soldPrice, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                        <div class="stat-label">Sold Price (rounded to 1000)</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i data-lucide="trending-up" class="sidebar-nav-icon-svg" style="width:24px;height:24px;"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value" style="color: var(--success);" th:text="${(product.soldPrice != null and product.price != null) ? #numbers.formatInteger((product.soldPrice - product.price), 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                        <div class="stat-label">Margin per Unit</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-col-grid">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Product Image</h3></div>
+                    <div class="card-body" style="padding: 1.5rem; text-align: center;">
+                        <div class="image-preview" style="max-width: 400px; margin: 0 auto;">
+                            <img th:if="${product.productPicture}" th:src="${product.productPicture}" alt="Product" style="max-height: 400px;">
+                            <div class="image-preview-placeholder" th:unless="${product.productPicture}">No image uploaded</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Product Details</h3></div>
+                    <div class="card-body">
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Colors</div>
+                                <div class="detail-value" th:text="${product.productColors ?: '—'}">—</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Selling Types</div>
+                                <div class="detail-value" th:text="${product.sellingTypes ?: '—'}">—</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Category</div>
+                                <div class="detail-value" th:text="${product.category?.name ?: '—'}">—</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Markup Logic</div>
+                                <div class="detail-value">
+                                    <span th:if="${product.price != null and product.price <= 5000}">≤5,000: ×1.6</span>
+                                    <span th:if="${product.price != null and product.price > 5000 and product.price <= 10000}">5,000-10,000: ×1.5</span>
+                                    <span th:if="${product.price != null and product.price > 10000 and product.price <= 20000}">10,000-20,000: ×1.35</span>
+                                    <span th:if="${product.price != null and product.price > 20000}">&gt;20,000: ×1.25</span>
+                                    <br><small style="color: var(--text-muted);">Rounded to nearest 1,000 KRW</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${product.productLinks}" class="card" style="margin-bottom: 2rem;">
+                <div class="card-header"><h3 class="card-title">Product Links</h3></div>
+                <div class="card-body">
+                    <div style="white-space: pre-wrap; font-family: var(--font-mono); font-size: 0.8125rem; color: var(--text-secondary);" th:text="${product.productLinks}"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title >eLEA KOREA Admin - Categories</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/elea.css}" href="../../static/css/elea.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script th:src="@{/js/app.js}" src="../../static/js/app.js" defer></script>
+</head>
+<body>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i data-lucide="package" class="sidebar-brand-icon-svg"></i></div>
+            <span class="sidebar-brand-text">eLEA KOREA</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/}" href="/" class="sidebar-nav-item" data-nav="/">
+                <i data-lucide="layout-dashboard" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/orders}" href="/orders" class="sidebar-nav-item" data-nav="/orders">
+                <i data-lucide="shopping-bag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Orders</span>
+            </a>
+            <a th:href="@{/customers}" href="/customers" class="sidebar-nav-item" data-nav="/customers">
+                <i data-lucide="users" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Customers</span>
+            </a>
+            <a th:href="@{/products}" href="/products" class="sidebar-nav-item" data-nav="/products">
+                <i data-lucide="package" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Products</span>
+            </a>
+            <a th:href="@{/categories}" href="/categories" class="sidebar-nav-item" data-nav="/categories">
+                <i data-lucide="tag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Categories</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title" th:text="${pageTitle} ?: 'Categories'">Categories</h1>
+                <p class="page-subtitle" th:text="${pageSubtitle} ?: 'Order Management System'">Order Management System</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button class="btn btn-ghost mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+                    <i data-lucide="menu" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                </button>
+            </div>
+        </header>
+
+        <section>
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; width: 100%;">
+                        <div>
+                            <h3 class="card-title">Categories</h3>
+                            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">Manage product categories</p>
+                        </div>
+                        <a th:href="@{/categories/new}" href="/categories/new" class="btn btn-primary"><i data-lucide="plus"></i> New Category</a>
+                    </div>
+                </div>
+
+                <div class="card-body" style="padding: 0;">
+                    <div class="search-filter-bar">
+                        <form method="get" th:action="@{/categories}" class="search-box" style="flex: 1;">
+                            <i data-lucide="search" class="search-box-icon"></i>
+                            <input type="search" name="keyword" class="form-input" placeholder="Search categories..." th:value="${keyword}">
+                        </form>
+                    </div>
+
+                    <div th:if="${categories.isEmpty()}" class="empty-state" style="display: none;" th:style="'border-radius: 0; border: none; border-top: 1px solid var(--border-light);'">
+                        <i data-lucide="tag" class="empty-icon"></i>
+                        <h3 class="empty-title">No categories found</h3>
+                        <p class="empty-text">Create your first category to organize products</p>
+                        <a th:href="@{/categories/new}" href="/categories/new" class="btn btn-primary"><i data-lucide="plus"></i> Create Category</a>
+                    </div>
+
+                    <div th:unless="${categories.isEmpty()}">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Products</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="category : ${categories.content}">
+                                        <td><span class="mono" th:text="${category.id}">1</span></td>
+                                        <td><span style="font-weight: 500;" th:text="${category.name}">Category Name</span></td>
+                                        <td>
+                                            <a th:href="@{/products(categoryId=${category.id})}" href="/products" class="badge badge-neutral" th:text="${(productCounts[category.id] ?: 0) + ' products'}">0 products</a>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a th:href="@{/categories/{id}/edit(id=${category.id})}" href="/categories/new" class="btn btn-ghost btn-sm" aria-label="Edit">
+                                                    <i data-lucide="edit" style="width:16px;height:16px;"></i>
+                                                </a>
+                                                <form th:action="@{/categories/{id}/delete(id=${category.id})}" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn btn-ghost btn-sm btn-danger" aria-label="Delete" onclick="return confirm('Delete this category?')">
+                                                        <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="pagination" th:if="${categories.totalPages > 1}">
+                            <a th:href="@{/categories(page=0, size=${categories.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${categories.first ? 'disabled' : ''}" aria-label="First">««</a>
+                            <a th:href="@{/categories(page=${categories.number-1}, size=${categories.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${categories.first ? 'disabled' : ''}" aria-label="Previous">«</a>
+                            <span th:each="pageNum : ${#numbers.sequence(0, categories.totalPages - 1)}" th:if="${pageNum >= categories.number - 2 and pageNum <= categories.number + 2}">
+                                <a th:href="@{/categories(page=${pageNum}, size=${categories.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${pageNum == categories.number ? 'active' : ''}" th:text="${pageNum + 1}">1</a>
+                            </span>
+                            <a th:href="@{/categories(page=${categories.number+1}, size=${categories.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${categories.last ? 'disabled' : ''}" aria-label="Next">»</a>
+                            <a th:href="@{/categories(page=${categories.totalPages-1}, size=${categories.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${categories.last ? 'disabled' : ''}" aria-label="Last">»»</a>
+                            <span class="pagination-info" th:text="'Page ' + ${categories.number + 1} + ' of ' + ${categories.totalPages}">Page 1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

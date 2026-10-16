@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${'Order #' + order.id + ' - Order Details'}">Order Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/elea.css}" href="../../static/css/elea.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script th:src="@{/js/app.js}" src="../../static/js/app.js" defer></script>
+</head>
+<body>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i data-lucide="package" class="sidebar-brand-icon-svg"></i></div>
+            <span class="sidebar-brand-text">eLEA KOREA</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/}" href="/" class="sidebar-nav-item" data-nav="/">
+                <i data-lucide="layout-dashboard" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/orders}" href="/orders" class="sidebar-nav-item" data-nav="/orders">
+                <i data-lucide="shopping-bag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Orders</span>
+            </a>
+            <a th:href="@{/customers}" href="/customers" class="sidebar-nav-item" data-nav="/customers">
+                <i data-lucide="users" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Customers</span>
+            </a>
+            <a th:href="@{/products}" href="/products" class="sidebar-nav-item" data-nav="/products">
+                <i data-lucide="package" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Products</span>
+            </a>
+            <a th:href="@{/categories}" href="/categories" class="sidebar-nav-item" data-nav="/categories">
+                <i data-lucide="tag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Categories</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title" th:text="${pageTitle} ?: 'Order Details'">Order Details</h1>
+                <p class="page-subtitle" th:text="${pageSubtitle} ?: 'Order Management System'">Order Management System</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button class="btn btn-ghost mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+                    <i data-lucide="menu" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                </button>
+            </div>
+        </header>
+
+        <section>
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div>
+                    <h3 class="card-title" th:text="'Order #' + ${order.id}">Order #1</h3>
+                    <span class="badge status-packing" th:classappend="${order.status != null ? 'status-' + order.status.name().toLowerCase().replace('_', '-') : ''}" th:text="${order.status?.label}">Packing</span>
+                    <span class="badge status-pending" th:classappend="${order.paymentStatus != null ? 'status-' + order.paymentStatus.name().toLowerCase() : ''}" th:text="${order.paymentStatus?.label}" style="margin-left: 0.5rem;">Pending</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a th:href="@{/orders/{id}/edit(id=${order.id})}" href="/orders/new" class="btn btn-secondary"><i data-lucide="edit"></i> Edit</a>
+                    <a th:href="@{/orders}" href="/orders" class="btn btn-ghost"><i data-lucide="arrow-left"></i> Back</a>
+                </div>
+            </div>
+
+            <div class="two-col-grid">
+                <!-- Order Info -->
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Order Information</h3></div>
+                    <div class="card-body">
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Customer</div>
+                                <div class="detail-value">
+                                    <a th:href="@{/customers/{id}(id=${order.customer?.id})}" href="/customers" style="font-weight: 500;" th:text="${order.customer?.name}">Customer</a>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Product</div>
+                                <div class="detail-value">
+                                    <a th:href="@{/products/{id}(id=${order.product?.id})}" href="/products" style="font-weight: 500;" th:text="${order.product?.productName}">Product</a>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Quantity</div>
+                                <div class="detail-value mono" th:text="${order.quantity}">1</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Order Date</div>
+                                <div class="detail-value mono" th:text="${order.orderDate != null ? #temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm') : '—'}">2026-10-12 14:30</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Unit Price (Sold)</div>
+                                <div class="detail-value mono" style="color: var(--success);" th:text="${order.product?.soldPrice != null ? #numbers.formatInteger(order.product.soldPrice, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Unit Cost</div>
+                                <div class="detail-value mono" th:text="${order.product?.price != null ? #numbers.formatInteger(order.product.price, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Summary -->
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Financial Summary</h3></div>
+                    <div class="card-body">
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Revenue</div>
+                                <div class="detail-value mono" style="color: var(--success); font-size: 1.25rem;" th:text="${order.overallPrice != null ? #numbers.formatInteger(order.overallPrice, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Cost</div>
+                                <div class="detail-value mono" th:text="${order.moneySpent != null ? #numbers.formatInteger(order.moneySpent, 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Margin</div>
+                                <div class="detail-value mono" style="color: var(--success); font-size: 1.25rem;" th:text="${(order.overallPrice != null and order.moneySpent != null) ? #numbers.formatInteger((order.overallPrice - order.moneySpent), 0, 'COMMA') + ' KRW' : '0 KRW'}">0 KRW</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Margin %</div>
+                                <div class="detail-value mono" th:text="${(order.moneySpent != null and order.moneySpent > 0) ? #numbers.formatDecimal(((order.overallPrice - order.moneySpent) / order.moneySpent) * 100, 1, 1) + '%' : '—'}">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Timeline -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header"><h3 class="card-title">Fulfillment Timeline</h3></div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item completed">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Order Placed</div>
+                                <div class="timeline-time" th:text="${order.orderDate != null ? #temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm') : '—'}">2026-10-12 14:30</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item" th:classappend="|${order.status != null and order.status.ordinal() == 0 ? 'active' : ''} ${order.status != null and order.status.ordinal() > 0 ? 'completed' : ''}|">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Packing</div>
+                                <div class="timeline-time">Items being prepared for shipment</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item" th:classappend="|${order.status != null and order.status.ordinal() == 1 ? 'active' : ''} ${order.status != null and order.status.ordinal() > 1 ? 'completed' : ''}|">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Packing Completed</div>
+                                <div class="timeline-time">Package ready for pickup</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item" th:classappend="|${order.status != null and order.status.ordinal() == 2 ? 'active' : ''} ${order.status != null and order.status.ordinal() > 2 ? 'completed' : ''}|">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">In Transit</div>
+                                <div class="timeline-time">Shipped to destination country</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item" th:classappend="|${order.status != null and order.status.ordinal() == 3 ? 'active' : ''} ${order.status != null and order.status.ordinal() > 3 ? 'completed' : ''}|">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">In Local Warehouse</div>
+                                <div class="timeline-time">Arrived at local distribution center</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item" th:classappend="|${order.status != null and order.status.ordinal() == 4 ? 'active' : ''} ${order.status != null and order.status.ordinal() > 4 ? 'completed' : ''}|">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">In Delivery</div>
+                                <div class="timeline-time">Out for final delivery</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item" th:classappend="${order.status != null and order.status.ordinal() >= 5 ? 'active completed' : ''}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Delivered</div>
+                                <div class="timeline-time">Successfully delivered to customer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Image -->
+            <div th:if="${order.product?.productPicture}" class="card" style="margin-bottom: 2rem;">
+                <div class="card-header"><h3 class="card-title">Product Image</h3></div>
+                <div class="card-body" style="padding: 1.5rem; text-align: center;">
+                    <div class="image-preview" style="max-width: 400px; margin: 0 auto;">
+                        <img th:src="${order.product.productPicture}" alt="Product" style="max-height: 400px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Info -->
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Customer Details</h3></div>
+                <div class="card-body">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Name</div>
+                            <div class="detail-value">
+                                <a th:href="@{/customers/{id}(id=${order.customer?.id})}" href="/customers" style="font-weight: 500;" th:text="${order.customer?.name}">Customer</a>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Size</div>
+                            <div class="detail-value"><span class="badge badge-primary" th:text="${order.customer?.size ?: '—'}">M</span></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Height / Weight</div>
+                            <div class="detail-value mono" th:text="${(order.customer?.heightCm != null ? order.customer.heightCm + ' cm' : '—') + ' / ' + (order.customer?.weightKg != null ? order.customer.weightKg + ' kg' : '—')}">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Shoe Size</div>
+                            <div class="detail-value mono" th:text="${order.customer?.shoeSize ?: '—'}">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Social Media</div>
+                            <div class="detail-value" style="font-family: var(--font-mono); font-size: 0.8125rem; white-space: pre-wrap;" th:text="${order.customer?.socialMediaAccounts ?: '—'}">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

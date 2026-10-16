@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title >eLEA KOREA Admin - Customers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/elea.css}" href="../../static/css/elea.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script th:src="@{/js/app.js}" src="../../static/js/app.js" defer></script>
+</head>
+<body>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i data-lucide="package" class="sidebar-brand-icon-svg"></i></div>
+            <span class="sidebar-brand-text">eLEA KOREA</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/}" href="/" class="sidebar-nav-item" data-nav="/">
+                <i data-lucide="layout-dashboard" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/orders}" href="/orders" class="sidebar-nav-item" data-nav="/orders">
+                <i data-lucide="shopping-bag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Orders</span>
+            </a>
+            <a th:href="@{/customers}" href="/customers" class="sidebar-nav-item" data-nav="/customers">
+                <i data-lucide="users" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Customers</span>
+            </a>
+            <a th:href="@{/products}" href="/products" class="sidebar-nav-item" data-nav="/products">
+                <i data-lucide="package" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Products</span>
+            </a>
+            <a th:href="@{/categories}" href="/categories" class="sidebar-nav-item" data-nav="/categories">
+                <i data-lucide="tag" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                <span>Categories</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title" th:text="${pageTitle} ?: 'Customers'">Customers</h1>
+                <p class="page-subtitle" th:text="${pageSubtitle} ?: 'Order Management System'">Order Management System</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button class="btn btn-ghost mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+                    <i data-lucide="menu" class="sidebar-nav-icon sidebar-nav-icon-svg"></i>
+                </button>
+            </div>
+        </header>
+
+        <section>
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; width: 100%;">
+                        <div>
+                            <h3 class="card-title">Customers</h3>
+                            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">Manage customer profiles and measurements</p>
+                        </div>
+                        <a th:href="@{/customers/new}" href="/customers/new" class="btn btn-primary"><i data-lucide="plus"></i> New Customer</a>
+                    </div>
+                </div>
+
+                <div class="card-body" style="padding: 0;">
+                    <div class="search-filter-bar">
+                        <form method="get" th:action="@{/customers}" class="search-box" style="flex: 1;">
+                            <i data-lucide="search" class="search-box-icon"></i>
+                            <input type="search" name="keyword" class="form-input" placeholder="Search customers by name..." th:value="${keyword}">
+                        </form>
+                    </div>
+
+                    <div th:if="${customers.isEmpty()}" class="empty-state" style="display: none;" th:style="'border-radius: 0; border: none; border-top: 1px solid var(--border-light);'">
+                        <i data-lucide="users" class="empty-icon"></i>
+                        <h3 class="empty-title">No customers found</h3>
+                        <p class="empty-text">Add your first customer to get started</p>
+                        <a th:href="@{/customers/new}" href="/customers/new" class="btn btn-primary"><i data-lucide="plus"></i> Add Customer</a>
+                    </div>
+
+                    <div th:unless="${customers.isEmpty()}">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Size</th>
+                                        <th>Height/Weight</th>
+                                        <th>Shoe Size</th>
+                                        <th>Orders</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="customer : ${customers.content}">
+                                        <td><span class="mono" th:text="${customer.id}">1</span></td>
+                                        <td>
+                                            <a th:href="@{/customers/{id}(id=${customer.id})}" href="/customers" style="font-weight: 500; color: var(--text-primary);" th:text="${customer.name}">Customer Name</a>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-primary" th:text="${customer.size ?: '—'}">M</span>
+                                        </td>
+                                        <td>
+                                            <span class="mono" th:text="${(customer.heightCm != null ? customer.heightCm + 'cm' : '—') + ' / ' + (customer.weightKg != null ? customer.weightKg + 'kg' : '—')}">175cm / 70kg</span>
+                                        </td>
+                                        <td>
+                                            <span class="mono" th:text="${customer.shoeSize ?: '—'}">42</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-info" th:text="${(customer.orders != null ? customer.orders.size() : 0) + ' orders'}">0 orders</span>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a th:href="@{/customers/{id}(id=${customer.id})}" href="/customers" class="btn btn-ghost btn-sm" aria-label="View">
+                                                    <i data-lucide="eye" style="width:16px;height:16px;"></i>
+                                                </a>
+                                                <a th:href="@{/customers/{id}/edit(id=${customer.id})}" href="/customers/new" class="btn btn-ghost btn-sm" aria-label="Edit">
+                                                    <i data-lucide="edit" style="width:16px;height:16px;"></i>
+                                                </a>
+                                                <form th:action="@{/customers/{id}/delete(id=${customer.id})}" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn btn-ghost btn-sm btn-danger" aria-label="Delete" onclick="return confirm('Delete this customer and all their orders?')">
+                                                        <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pagination" th:if="${customers.totalPages > 1}">
+                            <a th:href="@{/customers(page=0, size=${customers.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${customers.first ? 'disabled' : ''}" aria-label="First">««</a>
+                            <a th:href="@{/customers(page=${customers.number-1}, size=${customers.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${customers.first ? 'disabled' : ''}" aria-label="Previous">«</a>
+                            <span th:each="pageNum : ${#numbers.sequence(0, customers.totalPages - 1)}" th:if="${pageNum >= customers.number - 2 and pageNum <= customers.number + 2}">
+                                <a th:href="@{/customers(page=${pageNum}, size=${customers.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${pageNum == customers.number ? 'active' : ''}" th:text="${pageNum + 1}">1</a>
+                            </span>
+                            <a th:href="@{/customers(page=${customers.number+1}, size=${customers.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${customers.last ? 'disabled' : ''}" aria-label="Next">»</a>
+                            <a th:href="@{/customers(page=${customers.totalPages-1}, size=${customers.size}, keyword=${keyword})}" class="pagination-btn" th:classappend="${customers.last ? 'disabled' : ''}" aria-label="Last">»»</a>
+                            <span class="pagination-info" th:text="'Page ' + ${customers.number + 1} + ' of ' + ${customers.totalPages}">Page 1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>
